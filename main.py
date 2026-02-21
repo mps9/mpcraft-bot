@@ -142,10 +142,14 @@ async def kick(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     try:
         with MCRcon(RCON_HOST, RCON_PASS, port=RCON_PORT) as m:
-            m.command(f"kick {player} {reason}")
+            res = m.command(f"kick {player} {reason}")   # ← сохраняем ответ
 
-        logging.info(f"Kick: {player} ({reason})")
-        await update.message.reply_text(f"{player} кикнут")
+        logging.info(f"Kick: {player} ({reason}) | response: {res}")
+
+        if res and "no player was found" in res.lower():
+            await update.message.reply_text(f"Игрок {player} не найден")
+        else:
+            await update.message.reply_text(f"{player} кикнут")
 
     except Exception as e:
         logging.warning(f"Ошибка kick: {e}")
